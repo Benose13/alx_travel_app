@@ -8,23 +8,22 @@ class Command(BaseCommand):
     help = "Seed the database with sample listings"
 
     def handle(self, *args, **kwargs):
-        if Listing.objects.exists():
-            self.stdout.write(self.style.WARNING("Listings already seeded."))
-            return
-
-        # Ensure at least one user exists
-        user, created = User.objects.get_or_create(username="testuser")
+        # Create a demo user if not exists
+        user, created = User.objects.get_or_create(username="demo_user")
         if created:
             user.set_password("password123")
             user.save()
 
-        listings_data = [
-            {"title": "Beachside Villa", "description": "Beautiful villa with sea view.", "price_per_night": 250.00, "location": "Lagos"},
-            {"title": "City Apartment", "description": "Modern apartment in city center.", "price_per_night": 100.00, "location": "Abuja"},
-            {"title": "Mountain Cabin", "description": "Cozy cabin near the mountains.", "price_per_night": 80.00, "location": "Jos"},
+        # Sample data
+        sample_listings = [
+            {"title": "Beach House", "description": "Ocean view house", "price_per_night": 120.00, "location": "Lagos"},
+            {"title": "Mountain Cabin", "description": "Cozy cabin in the hills", "price_per_night": 80.00, "location": "Jos"},
+            {"title": "City Apartment", "description": "Modern flat downtown", "price_per_night": 150.00, "location": "Abuja"},
         ]
 
-        for data in listings_data:
-            Listing.objects.create(**data)
-
-        self.stdout.write(self.style.SUCCESS("Successfully seeded listings data!"))
+        for data in sample_listings:
+            listing, created = Listing.objects.get_or_create(**data)
+            if created:
+                self.stdout.write(self.style.SUCCESS(f"Created listing: {listing.title}"))
+            else:
+                self.stdout.write(f"Listing already exists: {listing.title}")
